@@ -14,6 +14,10 @@ def favorite_book(user_id: int, book_id: int, db: Session = Depends(database.get
 @router.get("/{user_id}", response_model=list[schemas.FavoriteWithBook])
 def get_favorites(user_id: int, db: Session = Depends(database.get_db)):
     favorites = crud.get_favorites_by_user(db, user_id)
+
+    if not favorites:
+        return ["Teste"]
+
     return [
         {
             "id": fav.id,
@@ -33,5 +37,5 @@ def unfavorite_book(user_id: int, book_id: int, db: Session = Depends(database.g
     favorite = crud.get_favorite(db, user_id, book_id)
     if not favorite:
         raise HTTPException(status_code=404, detail="Favorito não encontrado")
-    crud.delete_favorite(db, user_id, book_id)
+    crud.unfavorite_book(db, user_id, book_id)
     return {"detail": "Favorito removido com sucesso"}

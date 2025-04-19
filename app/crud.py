@@ -35,6 +35,15 @@ def create_book(db: Session, book: schemas.BookCreate):
     db.refresh(db_book)
     return db_book
 
+def get_book(db: Session, book_id: int):
+    return db.query(models.Book).filter(models.Book.id == book_id).first()
+
+def delete_book(db: Session, book_id: int):
+    book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if book:
+        db.delete(book)
+        db.commit()
+
 def list_books(db: Session):
     return db.query(models.Book).all()
 
@@ -53,6 +62,19 @@ def get_favorite(db: Session, user_id: int, book_id: int):
         models.Favorite.user_id == user_id,
         models.Favorite.book_id == book_id
     ).first()
+
+def unfavorite_book(db: Session, user_id: int, book_id: int):
+    favorite = db.query(models.Favorite).filter(
+        models.Favorite.user_id == user_id,
+        models.Favorite.book_id == book_id
+    ).first()
+    
+    if not favorite:
+        return None  # Ou você pode levantar uma exceção se quiser, exemplo: raise Exception("Favorito não encontrado.")
+
+    db.delete(favorite)
+    db.commit()
+    return favorite
 
 def get_favorites_by_user(db: Session, user_id: int):
     return db.query(models.Favorite).filter(models.Favorite.user_id == user_id).all()
